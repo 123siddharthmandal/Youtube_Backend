@@ -1,0 +1,63 @@
+# workflow file: .github/workflows/ci.yml ->pipeline for continuous integration (CI) using GitHub Actions. It is triggered on push and pull request events to the main branch. The workflow runs on the latest version of Ubuntu and tests the code against multiple versions of Node.js (18.x, 20.x, 22.x). The steps include checking out the code, setting up Node.js, installing dependencies, building the project if necessary, and running tests.
+
+# name of the workflow canbe anything
+name: CI Pipeline
+#  trigger the workflow on push and pull request events to the main branch whwnever push or pull request is comited to the main branch this workflow will be triggered
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+# how syntax will look like for the job
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/ test node app on these versions of node
+
+    steps:
+        # switch branch and checkout code
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        #  actual commands 
+    - name: Build Command
+      run: echo "Building App"
+
+     
+  test:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/ test node app on these versions of node
+
+    steps:
+        # switch branch and checkout code
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        #  actual commands 
+     
+
+    - name: Test Command
+      run: echo "Testing App" 
+    
+    
+
+    
+    
