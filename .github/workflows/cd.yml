@@ -1,0 +1,34 @@
+# workflow file: .github/workflows/ci.yml ->pipeline for continuous integration (CI) using GitHub Actions. It is triggered on push and pull request events to the main branch. The workflow runs on the latest version of Ubuntu and tests the code against multiple versions of Node.js (18.x, 20.x, 22.x). The steps include checking out the code, setting up Node.js, installing dependencies, building the project if necessary, and running tests.
+
+# name of the workflow canbe anything
+name: Deployment Pipeline 
+#  trigger the workflow on push and pull request events to the main branch whwnever push or pull request is comited to the main branch this workflow will be triggered
+on:
+  push:
+    branches: [ "main" ]
+#   pull_request:
+#     branches: [ "main" ]
+
+# how syntax will look like for the job
+
+jobs:
+  # job name 
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    
+    steps:
+        # switch branch and checkout code
+    - uses: actions/checkout@v4
+    
+
+    - name: Build Doc ker Image
+      run: docker build -t siddharthmandal6221/youtube-backend .
+
+    - name: Docker Login
+      run: echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+
+
+    - name: Login Successful
+      run: echo "Docker login successful!"
