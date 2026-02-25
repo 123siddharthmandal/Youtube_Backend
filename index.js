@@ -22,6 +22,10 @@ app.use("/api", userRouter);
 app.use("/api/channel", channelRouter);
 app.use("/api/video", videoRouter);
 
+app.get("/", (req, res) => {
+   return res.status(200).json({ message: "Welcome to YouTube Backend API" });
+});
+
 
 
 app.listen(4000, () => {
