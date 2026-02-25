@@ -14,4 +14,4 @@ COPY . .
 # EXPOSE THE PORT THE SERVER IS RUNNING ON
 EXPOSE 4000
 # RUN THE SERVER
-CMD ["npm", "start"]  ;
+CMD ["npm", "start"]
