@@ -53,9 +53,13 @@ jobs:
         cache: 'npm'
         #  actual commands 
      
-
+    - name: Install Dependencies
+      run: npm install
     - name: Test Command
       run: echo "Testing App" 
+
+    - name : Run Tests
+      run: npm test
     
     
 
