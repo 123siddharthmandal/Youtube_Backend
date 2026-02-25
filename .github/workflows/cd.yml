@@ -32,3 +32,6 @@ jobs:
 
     - name: Login Successful
       run: echo "Docker login successful!"
+
+    - name: Push Docker Image
+      run: docker push siddharthmandal6221/youtube-backend
