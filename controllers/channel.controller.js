@@ -1,6 +1,8 @@
 const Channel = require('../models/Channel.model');
 const User = require('../models/User.model');
 const mongoose = require('mongoose');
+
+const redis = require('../utils/redisClient');
 const createChannel = async (req,res) => {
     try{
         const { ownerId,channelname,about}=req.body;
@@ -24,6 +26,22 @@ const getAccountDetails  = async(req,res) => {
         const {userId} = req.body;
         //logic 
 
+        const cacheKey = `accountDetails:${userId}`;
+        try{
+            const cachedData = await redis.get(cacheKey);
+            if (cachedData){
+                const parsedData = JSON.parse(cachedData);
+                return res.status(200).json({message:"Account details fetched from redis cache",data:parsedData});
+
+
+
+            }
+        }catch(error){
+            console.error("Error fetching cached data:",error);
+        }
+
+
+        const userDetails =await User.findById(userId);
         const data =await User.aggregate([
             {$match:{
                 _id:new mongoose.Types.ObjectId(userId)
@@ -48,13 +66,17 @@ const getAccountDetails  = async(req,res) => {
             },
             {
                 $project:{
-                    channelname:1,
-                    about:1
+                    username:1,
+                    about:1,
+                    channelname:"$channelDetails.channelname",
+                    about:"$channelDetails.about"
                 }
             }
 
 
         ]);
+
+        await redis.set(cacheKey,JSON.stringify(data,userDetails), "EX", 100);
 
         return res.status(200).json
         ({message:"Account details fetched successfully",data:data});
@@ -74,6 +96,18 @@ const getAccountDetails  = async(req,res) => {
             try{
 
                 const{userId} = req.params;
+                
+             const redisKey = `all_Details:${userId}`;
+             try{
+                const redisData = await redis.get(redisKey);
+                if(redisData){
+                    const parsedData = JSON.parse(redisData);
+                    return res.status(200).json({message:"All details fetched from redis cache", all_Details:parsedData});
+                }
+
+             } catch(error){
+                console.error("Error fetching data from redis:",error);
+             }
 
                 const data = await User.aggregate([
 
@@ -152,11 +186,35 @@ const getAccountDetails  = async(req,res) => {
                         }
                     }
                 ]);
-                return res.status(200).json({message:"All details fetched successfully",data:data});
+                await redis.set(redisKey,JSON.stringify(parsedData), "EX", 100);
+                return res.status(200).json({message:"All details fetched successfully", all_Details:parsedData});
             }catch(error){
                 console.error("Error fetching all details:",error);
                 res.status(500).json({message:"Internal server error"});
             }
         }
+
+
+
+        const getResultFromCbse = async(req,res) => {
+            try{
+                const{userId} = req.params;
+
+                const key = 'key:${userId}';
+                const limit = 5;
+                const time_duartion = 60;
+                const requests = await redis.incr(key);
+
+                await redis.expire(key,time_duartion);
+                if(requests > limit){
+                    return res.status(429).json({message:"Too many requests. Please try again later."});
+                }
+                return res.status(200).json({message:"Request successful",data:{result:"Passed"}});
+
+            }catch(err){
+                console.error("Error fetching result from cbse:",err);
+                res.status(500).json({message:"Internal server error"});
+            }
+        }
   
-module.exports = {createChannel,getAccountDetails,getAllDetails};
+module.exports = {createChannel,getAccountDetails,getAllDetails,getResultFromCbse};

@@ -15,3 +15,4 @@ COPY . .
 EXPOSE 4000
 # RUN THE SERVER
 CMD ["npm", "start"]
+

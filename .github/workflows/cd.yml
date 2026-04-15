@@ -13,6 +13,7 @@ on:
 
 jobs:
   # job name 
+  
   deploy:
 
     runs-on: ubuntu-latest
@@ -23,7 +24,7 @@ jobs:
     - uses: actions/checkout@v4
     
 
-    - name: Build Doc ker Image
+    - name: Build Docker Image
       run: docker build -t siddharthmandal6221/youtube-backend .
 
     - name: Docker Login
@@ -35,3 +36,40 @@ jobs:
 
     - name: Push Docker Image
       run: docker push siddharthmandal6221/youtube-backend
+      
+
+
+  aws-deploy:
+    needs: deploy
+    runs-on: self-hosted
+
+    
+    steps:
+        # switch branch and checkout code
+    - uses: actions/checkout@v4
+    
+
+    - name: pull latest docker image
+      run: docker pull siddharthmandal6221/youtube-backend
+      
+    - name: Remove existing customer container
+      run: docker rm -f yt-backend||true
+ 
+
+    - name: Run redis inside container
+      run: docker run -d --name redis redis:latest
+      
+
+
+    - name: Run docker container for yt-backend app
+      run: docker run -d --name yt-backend --link redis:redis -p 4000:4000 -e MONGO_URL=${{ secrets.MONGO_DB }} siddharthmandal6221/youtube-backend
+      
+
+    
+
+
+
+  
+
+
+      
