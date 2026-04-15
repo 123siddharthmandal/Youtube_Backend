@@ -53,7 +53,7 @@ jobs:
       run: docker pull siddharthmandal6221/youtube-backend
       
     - name: Remove existing customer container
-      run: docker rm -f yt-backend||true
+      run: docker rm -f yt-backend redis ||true
  
 
     - name: Run redis inside container
