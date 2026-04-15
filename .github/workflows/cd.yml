@@ -62,7 +62,7 @@ jobs:
 
 
     - name: Run docker container for yt-backend app
-      run: docker run -d --name yt-backend --link redis:redis -p 4000:4000 -e MONGO_URL=${{ secrets.MONGO_DB }} siddharthmandal6221/youtube-backend
+      run: docker run -d --name yt-backend --link redis:redis -p 4000:4000 -e MONGO_URL="${{ secrets.MONGO_DB }}" siddharthmandal6221/youtube-backend
       
 
     
